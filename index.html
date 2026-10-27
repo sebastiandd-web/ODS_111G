@@ -24,77 +24,87 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    body {
-      background-color: #f0f0f0;
-      color: #333;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    /* Comportamiento de página web estándar con scroll vertical fluido */
+    html {
+      width: 100%;
+      min-height: 100%;
+      overflow-y: auto;
+      background-color: #e5e5e5;
     }
 
-    /* Encabezado superior rojo institucional */
+    body {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background-color: #e5e5e5;
+      color: #222;
+    }
+
+    /* 1. Encabezado superior rojo institucional (21px) */
     .top-header {
       background-color: #d31e28;
       color: #ffffff;
-      padding: 9px 18px;
-      font-size: 15px;
-      font-weight: 500;
-      letter-spacing: 0.2px;
+      padding: 12px 22px;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
       border-bottom: 2px solid #b3161f;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .top-badge {
-      font-size: 11px;
+      font-size: 13px;
       background: rgba(0,0,0,0.25);
-      padding: 4px 9px;
+      padding: 5px 12px;
       border-radius: 4px;
-      font-weight: normal;
+      font-weight: 500;
     }
 
-    /* Layout principal */
+    /* 2. Contenedor principal sin bloqueo de scroll */
     .dashboard-container {
       display: flex;
       flex: 1;
-      height: calc(100vh - 43px);
-      gap: 8px;
-      padding: 8px;
-      overflow: hidden;
+      height: auto;
+      min-height: calc(100vh - 55px);
+      gap: 12px;
+      padding: 12px;
     }
 
-    /* Panel Lateral Izquierdo */
+    /* 3. Panel Lateral Izquierdo (340px) */
     .sidebar {
-      width: 295px;
-      min-width: 295px;
+      width: 340px;
+      min-width: 340px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      height: 100%;
-      overflow: hidden;
+      gap: 12px;
+      height: auto;
+      flex-shrink: 0;
     }
 
-    /* Tarjeta del Selector con Scroll para las 23 ciudades */
+    /* Cuadro superior izquierdo: Selector de departamentos (480px, igual al mapa) */
     .selector-card {
       background: #5b5f63;
       display: flex;
       flex-direction: column;
-      border: 1px solid #c9c9c9;
+      border: 1px solid #bfbfbf;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      flex: 1;
-      min-height: 0; /* Clave técnica para activar el scroll vertical en flexbox */
+      height: 480px;
+      min-height: 440px;
       overflow: hidden;
     }
 
     .selector-header {
       background-color: #d31e28;
       color: white;
-      font-size: 12.5px;
-      font-weight: bold;
-      padding: 9px 12px;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 11px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -103,7 +113,7 @@
       flex-shrink: 0;
     }
 
-    /* Lista con scroll del ratón y estilo de scrollbar */
+    /* Barra desplazadora vertical interna para las 23 ciudades */
     .dept-list {
       overflow-y: auto;
       overflow-x: hidden;
@@ -111,34 +121,35 @@
       list-style: none;
       background-color: #5b5f63;
       scrollbar-width: thin;
-      scrollbar-color: #888 #4b4e52;
+      scrollbar-color: #b0b0b0 #464a4d;
     }
 
     .dept-list::-webkit-scrollbar {
-      width: 6px;
+      width: 9px;
     }
 
     .dept-list::-webkit-scrollbar-track {
-      background: #4b4e52;
+      background: #464a4d;
     }
 
     .dept-list::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 3px;
+      background: #b0b0b0;
+      border-radius: 4px;
+      border: 1px solid #464a4d;
     }
 
     .dept-list::-webkit-scrollbar-thumb:hover {
-      background: #aaa;
+      background: #d8d8d8;
     }
 
     .dept-item {
-      padding: 9.5px 12px;
-      font-size: 10.5px; /* Mantiene exactamente el tamaño de letra original */
+      padding: 11px 16px;
+      font-size: 13.5px;
       font-weight: 600;
       color: #ffffff;
       border-bottom: 1px solid #6f7478;
       cursor: pointer;
-      line-height: 1.3;
+      line-height: 1.35;
       text-transform: uppercase;
       transition: background 0.15s ease;
     }
@@ -149,109 +160,150 @@
 
     .dept-item.active {
       background-color: #383b3e;
-      border-left: 4px solid #ffffff;
-      padding-left: 8px;
+      border-left: 6px solid #ffffff;
+      padding-left: 12px;
     }
 
-    /* Contadores KPI */
+    /* Cuadro inferior izquierdo: LEYENDA (330px, igual a la gráfica) */
+    .legend-panel {
+      background: #ffffff;
+      border: 1px solid #c9c9c9;
+      display: flex;
+      flex-direction: column;
+      height: 330px;
+      min-height: 300px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .legend-panel .panel-header {
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #111;
+      border-bottom: 1px solid #e5e5e5;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .legend-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 12px 16px;
+      gap: 12px;
+      overflow-y: auto;
+      justify-content: space-between;
+    }
+
+    /* Métricas / Contadores */
     .metrics-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
     .metric-card {
-      background: #ffffff;
+      background: #fdfdfd;
       border: 1px solid #d5d5d5;
-      padding: 8px;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     }
 
     .metric-label {
-      font-size: 9.5px;
+      font-size: 12px;
       color: #666;
       text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 2px;
+      font-weight: 700;
     }
 
     .metric-value {
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 22px;
+      font-weight: 800;
       color: #d31e28;
+      line-height: 1.2;
     }
 
     .metric-sub {
-      font-size: 9.5px;
-      color: #777;
-      margin-top: 2px;
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Leyenda */
-    .legend-card {
-      background: #ffffff;
-      border: 1px solid #d0d0d0;
-      padding: 9px 12px;
-      font-size: 11px;
-      flex-shrink: 0;
+    /* Escala de colores */
+    .legend-scale-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      justify-content: center;
     }
 
-    .legend-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-      font-size: 11px;
-      color: #111;
+    .legend-subtitle {
+      font-size: 13px;
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 2px;
     }
 
     .legend-scale {
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
+      gap: 4px;
     }
 
     .legend-scale-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      color: #444;
+      gap: 10px;
+      font-size: 13px;
+      color: #333;
+      font-weight: 600;
     }
 
     .legend-color-box {
-      width: 14px;
-      height: 11px;
-      border: 1px solid #999;
+      width: 20px;
+      height: 14px;
+      border: 1px solid #666;
+      flex-shrink: 0;
     }
 
-    /* Panel Central y Derecho */
+    /* 4. Panel Derecho (Mapa + Gráfica) */
     .main-content {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      height: 100%;
-      overflow: hidden;
+      gap: 12px;
+      height: auto;
+      min-width: 0;
     }
 
+    /* Cuadro superior derecho: Mapa (480px) */
     .map-panel {
       background: #ffffff;
-      border: 1px solid #d0d0d0;
+      border: 1px solid #c9c9c9;
       display: flex;
       flex-direction: column;
-      flex: 1.3;
-      min-height: 320px;
+      height: 480px;
+      min-height: 440px;
       position: relative;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .panel-header {
-      padding: 8px 12px;
-      font-size: 12.5px;
-      font-weight: bold;
-      color: #222;
-      border-bottom: 1px solid #e2e2e2;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #111;
+      border-bottom: 1px solid #e5e5e5;
       background: #ffffff;
       display: flex;
       justify-content: space-between;
@@ -262,29 +314,37 @@
     .map-wrapper {
       flex: 1;
       position: relative;
+      min-height: 0;
+      width: 100%;
     }
 
     #leaflet-map {
       width: 100%;
       height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
+    /* Línea de tiempo inferior del mapa */
     .year-timeline {
       display: flex;
       border-top: 1px solid #d5d5d5;
       background: #f7f7f7;
       overflow-x: auto;
       flex-shrink: 0;
+      scrollbar-width: thin;
     }
 
     .year-btn {
-      padding: 6px 10px;
-      font-size: 11px;
+      padding: 8px 13px;
+      font-size: 13.5px;
+      font-weight: 600;
       background: none;
       border: none;
       border-right: 1px solid #e0e0e0;
       cursor: pointer;
-      color: #444;
+      color: #333;
       white-space: nowrap;
       transition: background 0.15s;
     }
@@ -295,19 +355,21 @@
 
     .year-btn.active {
       background: #ffffff;
-      font-weight: bold;
+      font-weight: 800;
       color: #d31e28;
-      border-top: 2px solid #d31e28;
+      border-top: 3px solid #d31e28;
     }
 
+    /* Cuadro inferior derecho: Diagrama de barras (330px) */
     .chart-panel {
       background: #ffffff;
-      border: 1px solid #d0d0d0;
+      border: 1px solid #c9c9c9;
       display: flex;
       flex-direction: column;
-      flex: 1;
-      min-height: 220px;
-      padding-bottom: 6px;
+      height: 330px;
+      min-height: 300px;
+      padding-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .chart-body {
@@ -315,63 +377,86 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: 10px 24px 4px 36px;
+      padding: 16px 22px 6px 50px;
+      min-height: 0;
     }
 
     .chart-canvas-area {
       flex: 1;
-      display: flex;
-      align-items: flex-end;
-      gap: 1.1%;
       position: relative;
-      border-bottom: 1px solid #666;
+      border-bottom: 1.5px solid #555;
+      min-height: 130px;
     }
 
     .grid-line {
       position: absolute;
       left: 0;
       right: 0;
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid #ececec;
       pointer-events: none;
+      z-index: 1;
     }
 
     .y-axis-label {
       position: absolute;
-      left: -30px;
-      font-size: 10px;
-      color: #555;
+      left: -34px;
+      top: -9px;
+      font-size: 13.5px;
+      color: #444;
+      text-align: right;
+      width: 28px;
+      font-weight: 600;
     }
 
     .y-unit {
       position: absolute;
-      left: -30px;
+      left: -42px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 10px;
-      color: #333;
+      font-size: 13.5px;
+      color: #222;
       font-weight: bold;
+    }
+
+    .bars-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: stretch;
+      z-index: 2;
     }
 
     .bar-col {
       flex: 1;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      height: 100%;
       justify-content: flex-end;
+      align-items: center;
       position: relative;
       cursor: pointer;
+      border-right: 1px solid #f2f2f2;
+    }
+
+    .bar-col:last-child {
+      border-right: none;
+    }
+
+    .bar-col:hover {
+      background-color: rgba(0, 0, 0, 0.02);
     }
 
     .bar {
-      width: 80%;
+      width: 82%;
       background-color: #6a3c18;
-      transition: all 0.25s ease;
-      min-height: 3px;
+      transition: height 0.25s ease, background-color 0.2s;
     }
 
     .bar-col:hover .bar {
-      background-color: #925424;
+      background-color: #8f5223;
     }
 
     .bar-col.selected .bar {
@@ -379,25 +464,41 @@
     }
 
     .bar-value {
-      font-size: 9.5px;
-      color: #222;
-      margin-bottom: 3px;
-      font-weight: bold;
+      font-size: 12.5px;
+      color: #111;
+      margin-bottom: 4px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .x-axis-row {
+      display: flex;
+      border-top: 1.5px solid #777;
+      margin-top: 0;
     }
 
     .bar-year {
-      font-size: 10px;
-      color: #444;
-      margin-top: 4px;
+      flex: 1;
       text-align: center;
+      font-size: 12.5px;
+      color: #333;
+      padding-top: 5px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .bar-year.selected {
+      font-weight: 800;
+      color: #d31e28;
     }
 
     .x-axis-title {
       text-align: center;
-      font-size: 11px;
-      color: #444;
-      margin-top: 4px;
-      font-weight: 500;
+      font-size: 14px;
+      color: #222;
+      margin-top: 5px;
+      font-weight: 700;
     }
 
     .loading-overlay {
@@ -406,13 +507,41 @@
       background: rgba(255,255,255,0.85);
       z-index: 1000;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 600;
       color: #333;
+    }
+
+    /* Adaptabilidad vertical en móviles/tablets (≤ 768px) */
+    @media (max-width: 768px) {
+      .top-header {
+        font-size: 17px;
+      }
+      .dashboard-container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+      }
+      .selector-card {
+        height: 250px;
+        min-height: 250px;
+      }
+      .legend-panel {
+        height: auto;
+        min-height: 250px;
+      }
+      .map-panel {
+        height: 400px;
+        min-height: 400px;
+      }
+      .chart-panel {
+        height: 320px;
+        min-height: 320px;
+      }
     }
   </style>
 </head>
@@ -422,289 +551,43 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    const GITHUB_RAW_URL = 'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_1_1_1_G.geojson';
-    const JSDELIVR_CDN_URL = 'https://cdn.jsdelivr.net/gh/sebastiandd-web/ODS_111G@main/ODS_1_1_1_G.geojson';
+    const PRIMARY_RAW_URLS = [
+      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_1_1_1_G.geojson',
+      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_111G.geojson',
+      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/master/ODS_1_1_1_G.geojson',
+      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/master/ODS_111G.geojson',
+      'https://cdn.jsdelivr.net/gh/sebastiandd-web/ODS_111G@main/ODS_1_1_1_G.geojson',
+      'https://cdn.jsdelivr.net/gh/sebastiandd-web/ODS_111G@main/ODS_111G.geojson'
+    ];
+
+    const GITHUB_REPO_API = 'https://api.github.com/repos/sebastiandd-web/ODS_111G/contents';
 
     const YEARS = [2002, 2003, 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
 
-    // LAS 23 CIUDADES Y ÁREAS METROPOLITANAS OFICIALES DANE
     const CITIES_23 = [
-      {
-        id: "05001",
-        code: "05001",
-        label: "05001 - MEDELLÍN",
-        name: "Medellín",
-        center: [6.2442, -75.5812],
-        series: {
-          2002: 6.8, 2003: 6.2, 2004: 5.8, 2005: 5.1, 2008: 5.9, 2009: 4.7,
-          2010: 4.2, 2011: 3.5, 2012: 3.8, 2013: 3.6, 2014: 3.1, 2015: 3.0,
-          2016: 3.4, 2017: 3.1, 2018: 3.3, 2019: 3.8, 2020: 8.5
-        }
-      },
-      {
-        id: "08001",
-        code: "08001",
-        label: "08001 - BARRANQUILLA, DISTRITO ESPECIAL, INDUSTRIAL Y PORTUARIO",
-        name: "Barranquilla",
-        center: [10.9685, -74.7813],
-        series: {
-          2002: 7.2, 2003: 6.9, 2004: 6.4, 2005: 5.8, 2008: 6.7, 2009: 5.5,
-          2010: 4.8, 2011: 4.1, 2012: 4.0, 2013: 3.9, 2014: 3.4, 2015: 3.2,
-          2016: 3.6, 2017: 3.5, 2018: 3.7, 2019: 4.1, 2020: 10.2
-        }
-      },
-      {
-        id: "11001",
-        code: "11001",
-        label: "11001 - BOGOTÁ, DISTRITO CAPITAL",
-        name: "Bogotá, D.C.",
-        center: [4.6097, -74.0817],
-        series: {
-          2002: 5.3, 2003: 5.1, 2004: 5.1, 2005: 4.4, 2008: 6.0, 2009: 5.0,
-          2010: 3.9, 2011: 2.8, 2012: 3.2, 2013: 3.3, 2014: 2.8, 2015: 2.9,
-          2016: 3.1, 2017: 2.9, 2018: 3.0, 2019: 3.2, 2020: 9.0
-        }
-      },
-      {
-        id: "13001",
-        code: "13001",
-        label: "13001 - CARTAGENA DE INDIAS, DISTRITO TURÍSTICO Y CULTURAL",
-        name: "Cartagena de Indias",
-        center: [10.3910, -75.4794],
-        series: {
-          2002: 8.1, 2003: 7.8, 2004: 7.0, 2005: 6.5, 2008: 7.1, 2009: 6.3,
-          2010: 5.5, 2011: 4.8, 2012: 4.5, 2013: 4.2, 2014: 3.9, 2015: 4.0,
-          2016: 4.1, 2017: 4.0, 2018: 4.3, 2019: 4.6, 2020: 11.4
-        }
-      },
-      {
-        id: "15001",
-        code: "15001",
-        label: "15001 - TUNJA",
-        name: "Tunja",
-        center: [5.5353, -73.3678],
-        series: {
-          2002: 4.9, 2003: 4.7, 2004: 4.3, 2005: 4.0, 2008: 4.8, 2009: 4.1,
-          2010: 3.5, 2011: 2.5, 2012: 2.7, 2013: 2.6, 2014: 2.3, 2015: 2.4,
-          2016: 2.6, 2017: 2.5, 2018: 2.7, 2019: 2.9, 2020: 7.3
-        }
-      },
-      {
-        id: "17001",
-        code: "17001",
-        label: "17001 - MANIZALES",
-        name: "Manizales",
-        center: [5.0689, -75.5174],
-        series: {
-          2002: 5.0, 2003: 4.8, 2004: 4.5, 2005: 4.1, 2008: 4.9, 2009: 4.2,
-          2010: 3.6, 2011: 2.7, 2012: 2.9, 2013: 2.8, 2014: 2.4, 2015: 2.3,
-          2016: 2.5, 2017: 2.4, 2018: 2.6, 2019: 2.8, 2020: 6.9
-        }
-      },
-      {
-        id: "18001",
-        code: "18001",
-        label: "18001 - FLORENCIA",
-        name: "Florencia",
-        center: [1.6144, -75.6062],
-        series: {
-          2002: 9.3, 2003: 9.0, 2004: 8.4, 2005: 7.9, 2008: 8.5, 2009: 7.7,
-          2010: 6.9, 2011: 5.8, 2012: 5.9, 2013: 5.7, 2014: 5.1, 2015: 4.9,
-          2016: 5.2, 2017: 5.0, 2018: 5.3, 2019: 5.6, 2020: 12.8
-        }
-      },
-      {
-        id: "19001",
-        code: "19001",
-        label: "19001 - POPAYÁN",
-        name: "Popayán",
-        center: [2.4419, -76.6063],
-        series: {
-          2002: 8.7, 2003: 8.3, 2004: 7.9, 2005: 7.2, 2008: 8.1, 2009: 7.2,
-          2010: 6.4, 2011: 5.2, 2012: 5.4, 2013: 5.1, 2014: 4.7, 2015: 4.6,
-          2016: 4.8, 2017: 4.7, 2018: 4.9, 2019: 5.3, 2020: 11.9
-        }
-      },
-      {
-        id: "20001",
-        code: "20001",
-        label: "20001 - VALLEDUPAR",
-        name: "Valledupar",
-        center: [10.4631, -73.2532],
-        series: {
-          2002: 8.4, 2003: 8.0, 2004: 7.5, 2005: 6.9, 2008: 7.7, 2009: 6.8,
-          2010: 6.1, 2011: 5.0, 2012: 5.1, 2013: 4.9, 2014: 4.4, 2015: 4.3,
-          2016: 4.6, 2017: 4.5, 2018: 4.8, 2019: 5.1, 2020: 11.2
-        }
-      },
-      {
-        id: "23001",
-        code: "23001",
-        label: "23001 - MONTERÍA",
-        name: "Montería",
-        center: [8.7479, -75.8814],
-        series: {
-          2002: 7.9, 2003: 7.5, 2004: 7.1, 2005: 6.6, 2008: 7.4, 2009: 6.5,
-          2010: 5.8, 2011: 4.7, 2012: 4.9, 2013: 4.6, 2014: 4.2, 2015: 4.1,
-          2016: 4.4, 2017: 4.3, 2018: 4.6, 2019: 4.9, 2020: 10.8
-        }
-      },
-      {
-        id: "27001",
-        code: "27001",
-        label: "27001 - SAN FRANCISCO DE QUIBDÓ",
-        name: "Quibdó",
-        center: [5.6947, -76.6611],
-        series: {
-          2002: 12.5, 2003: 12.0, 2004: 11.3, 2005: 10.8, 2008: 11.9, 2009: 10.7,
-          2010: 9.8, 2011: 8.6, 2012: 8.8, 2013: 8.5, 2014: 7.8, 2015: 7.5,
-          2016: 8.0, 2017: 7.8, 2018: 8.2, 2019: 8.7, 2020: 16.5
-        }
-      },
-      {
-        id: "41001",
-        code: "41001",
-        label: "41001 - NEIVA",
-        name: "Neiva",
-        center: [2.9273, -75.2819],
-        series: {
-          2002: 6.5, 2003: 6.1, 2004: 5.7, 2005: 5.2, 2008: 5.8, 2009: 4.9,
-          2010: 4.3, 2011: 3.7, 2012: 3.9, 2013: 3.5, 2014: 3.2, 2015: 3.1,
-          2016: 3.5, 2017: 3.3, 2018: 3.6, 2019: 4.0, 2020: 9.4
-        }
-      },
-      {
-        id: "44001",
-        code: "44001",
-        label: "44001 - RIOHACHA, DISTRITO ESPECIAL, TURÍSTICO Y CULTURAL",
-        name: "Riohacha",
-        center: [11.5444, -72.9072],
-        series: {
-          2002: 11.8, 2003: 11.4, 2004: 10.7, 2005: 10.1, 2008: 11.2, 2009: 10.0,
-          2010: 9.2, 2011: 8.1, 2012: 8.3, 2013: 7.9, 2014: 7.4, 2015: 7.1,
-          2016: 7.6, 2017: 7.4, 2018: 7.9, 2019: 8.4, 2020: 15.8
-        }
-      },
-      {
-        id: "47001",
-        code: "47001",
-        label: "47001 - SANTA MARTA, DISTRITO TURÍSTICO, CULTURAL E HISTÓRICO",
-        name: "Santa Marta",
-        center: [11.2408, -74.1990],
-        series: {
-          2002: 7.6, 2003: 7.2, 2004: 6.8, 2005: 6.1, 2008: 6.9, 2009: 5.8,
-          2010: 5.1, 2011: 4.4, 2012: 4.3, 2013: 4.0, 2014: 3.6, 2015: 3.5,
-          2016: 3.8, 2017: 3.7, 2018: 4.0, 2019: 4.4, 2020: 10.9
-        }
-      },
-      {
-        id: "50001",
-        code: "50001",
-        label: "50001 - VILLAVICENCIO",
-        name: "Villavicencio",
-        center: [4.1420, -73.6266],
-        series: {
-          2002: 6.2, 2003: 5.9, 2004: 5.5, 2005: 4.8, 2008: 5.6, 2009: 4.6,
-          2010: 4.0, 2011: 3.2, 2012: 3.4, 2013: 3.2, 2014: 2.9, 2015: 2.8,
-          2016: 3.1, 2017: 2.9, 2018: 3.2, 2019: 3.5, 2020: 8.8
-        }
-      },
-      {
-        id: "52001",
-        code: "52001",
-        label: "52001 - PASTO",
-        name: "Pasto",
-        center: [1.2136, -77.2811],
-        series: {
-          2002: 7.5, 2003: 7.1, 2004: 6.7, 2005: 6.0, 2008: 6.8, 2009: 5.7,
-          2010: 5.0, 2011: 4.2, 2012: 4.4, 2013: 4.1, 2014: 3.7, 2015: 3.6,
-          2016: 3.9, 2017: 3.8, 2018: 4.1, 2019: 4.5, 2020: 10.5
-        }
-      },
-      {
-        id: "54001",
-        code: "54001",
-        label: "54001 - CÚCUTA",
-        name: "Cúcuta",
-        center: [7.8939, -72.5078],
-        series: {
-          2002: 8.3, 2003: 7.9, 2004: 7.4, 2005: 6.8, 2008: 7.6, 2009: 6.6,
-          2010: 5.9, 2011: 4.9, 2012: 5.0, 2013: 4.8, 2014: 4.3, 2015: 4.2,
-          2016: 4.5, 2017: 4.4, 2018: 4.7, 2019: 5.2, 2020: 11.7
-        }
-      },
-      {
-        id: "63001",
-        code: "63001",
-        label: "63001 - ARMENIA",
-        name: "Armenia",
-        center: [4.5339, -75.6811],
-        series: {
-          2002: 5.6, 2003: 5.3, 2004: 4.9, 2005: 4.4, 2008: 5.2, 2009: 4.4,
-          2010: 3.8, 2011: 3.0, 2012: 3.2, 2013: 3.0, 2014: 2.7, 2015: 2.6,
-          2016: 2.9, 2017: 2.8, 2018: 3.0, 2019: 3.3, 2020: 7.8
-        }
-      },
-      {
-        id: "66001",
-        code: "66001",
-        label: "66001 - PEREIRA",
-        name: "Pereira",
-        center: [4.8133, -75.6961],
-        series: {
-          2002: 5.1, 2003: 4.9, 2004: 4.6, 2005: 4.2, 2008: 5.0, 2009: 4.3,
-          2010: 3.7, 2011: 2.8, 2012: 3.0, 2013: 2.9, 2014: 2.5, 2015: 2.4,
-          2016: 2.7, 2017: 2.5, 2018: 2.8, 2019: 3.0, 2020: 7.1
-        }
-      },
-      {
-        id: "68001",
-        code: "68001",
-        label: "68001 - BUCARAMANGA",
-        name: "Bucaramanga",
-        center: [7.1254, -73.1198],
-        series: {
-          2002: 4.7, 2003: 4.5, 2004: 4.2, 2005: 3.8, 2008: 4.6, 2009: 3.9,
-          2010: 3.3, 2011: 2.4, 2012: 2.5, 2013: 2.4, 2014: 2.1, 2015: 2.2,
-          2016: 2.4, 2017: 2.3, 2018: 2.5, 2019: 2.7, 2020: 6.8
-        }
-      },
-      {
-        id: "70001",
-        code: "70001",
-        label: "70001 - SINCELEJO",
-        name: "Sincelejo",
-        center: [9.3047, -75.3978],
-        series: {
-          2002: 8.9, 2003: 8.5, 2004: 8.0, 2005: 7.4, 2008: 8.3, 2009: 7.4,
-          2010: 6.6, 2011: 5.4, 2012: 5.6, 2013: 5.3, 2014: 4.9, 2015: 4.8,
-          2016: 5.0, 2017: 4.9, 2018: 5.1, 2019: 5.5, 2020: 12.4
-        }
-      },
-      {
-        id: "73001",
-        code: "73001",
-        label: "73001 - IBAGUÉ",
-        name: "Ibagué",
-        center: [4.4389, -75.2322],
-        series: {
-          2002: 6.4, 2003: 6.0, 2004: 5.6, 2005: 5.0, 2008: 5.7, 2009: 4.8,
-          2010: 4.1, 2011: 3.4, 2012: 3.6, 2013: 3.3, 2014: 3.0, 2015: 2.9,
-          2016: 3.2, 2017: 3.1, 2018: 3.4, 2019: 3.8, 2020: 8.9
-        }
-      },
-      {
-        id: "76001",
-        code: "76001",
-        label: "76001 - CALI, DISTRITO ESPECIAL, DEPORTIVO, CULTURAL Y DEPORTIVO",
-        name: "Cali",
-        center: [3.4516, -76.5320],
-        series: {
-          2002: 5.9, 2003: 5.6, 2004: 5.3, 2005: 4.7, 2008: 5.5, 2009: 4.6,
-          2010: 4.0, 2011: 3.1, 2012: 3.3, 2013: 3.1, 2014: 2.8, 2015: 2.7,
-          2016: 3.0, 2017: 2.9, 2018: 3.1, 2019: 3.5, 2020: 8.2
-        }
-      }
+      { id: "05001", code: "05001", label: "05001 - MEDELLÍN", name: "Medellín", center: [6.2442, -75.5812], series: { 2002: 6.8, 2003: 6.2, 2004: 5.8, 2005: 5.1, 2008: 5.9, 2009: 4.7, 2010: 4.2, 2011: 3.5, 2012: 3.8, 2013: 3.6, 2014: 3.1, 2015: 3.0, 2016: 3.4, 2017: 3.1, 2018: 3.3, 2019: 3.8, 2020: 8.5 } },
+      { id: "08001", code: "08001", label: "08001 - BARRANQUILLA, DISTRITO ESPECIAL, INDUSTRIAL Y PORTUARIO", name: "Barranquilla", center: [10.9685, -74.7813], series: { 2002: 7.2, 2003: 6.9, 2004: 6.4, 2005: 5.8, 2008: 6.7, 2009: 5.5, 2010: 4.8, 2011: 4.1, 2012: 4.0, 2013: 3.9, 2014: 3.4, 2015: 3.2, 2016: 3.6, 2017: 3.5, 2018: 3.7, 2019: 4.1, 2020: 10.2 } },
+      { id: "11001", code: "11001", label: "11001 - BOGOTÁ, DISTRITO CAPITAL", name: "Bogotá, D.C.", center: [4.6097, -74.0817], series: { 2002: 5.3, 2003: 5.1, 2004: 5.1, 2005: 4.4, 2008: 6.0, 2009: 5.0, 2010: 3.9, 2011: 2.8, 2012: 3.2, 2013: 3.3, 2014: 2.8, 2015: 2.9, 2016: 3.1, 2017: 2.9, 2018: 3.0, 2019: 3.2, 2020: 9.0 } },
+      { id: "13001", code: "13001", label: "13001 - CARTAGENA DE INDIAS, DISTRITO TURÍSTICO Y CULTURAL", name: "Cartagena de Indias", center: [10.3910, -75.4794], series: { 2002: 8.1, 2003: 7.8, 2004: 7.0, 2005: 6.5, 2008: 7.1, 2009: 6.3, 2010: 5.5, 2011: 4.8, 2012: 4.5, 2013: 4.2, 2014: 3.9, 2015: 4.0, 2016: 4.1, 2017: 4.0, 2018: 4.3, 2019: 4.6, 2020: 11.4 } },
+      { id: "15001", code: "15001", label: "15001 - TUNJA", name: "Tunja", center: [5.5353, -73.3678], series: { 2002: 4.9, 2003: 4.7, 2004: 4.3, 2005: 4.0, 2008: 4.8, 2009: 4.1, 2010: 3.5, 2011: 2.5, 2012: 2.7, 2013: 2.6, 2014: 2.3, 2015: 2.4, 2016: 2.6, 2017: 2.5, 2018: 2.7, 2019: 2.9, 2020: 7.3 } },
+      { id: "17001", code: "17001", label: "17001 - MANIZALES", name: "Manizales", center: [5.0689, -75.5174], series: { 2002: 5.0, 2003: 4.8, 2004: 4.5, 2005: 4.1, 2008: 4.9, 2009: 4.2, 2010: 3.6, 2011: 2.7, 2012: 2.9, 2013: 2.8, 2014: 2.4, 2015: 2.3, 2016: 2.5, 2017: 2.4, 2018: 2.6, 2019: 2.8, 2020: 6.9 } },
+      { id: "18001", code: "18001", label: "18001 - FLORENCIA", name: "Florencia", center: [1.6144, -75.6062], series: { 2002: 9.3, 2003: 9.0, 2004: 8.4, 2005: 7.9, 2008: 8.5, 2009: 7.7, 2010: 6.9, 2011: 5.8, 2012: 5.9, 2013: 5.7, 2014: 5.1, 2015: 4.9, 2016: 5.2, 2017: 5.0, 2018: 5.3, 2019: 5.6, 2020: 12.8 } },
+      { id: "19001", code: "19001", label: "19001 - POPAYÁN", name: "Popayán", center: [2.4419, -76.6063], series: { 2002: 8.7, 2003: 8.3, 2004: 7.9, 2005: 7.2, 2008: 8.1, 2009: 7.2, 2010: 6.4, 2011: 5.2, 2012: 5.4, 2013: 5.1, 2014: 4.7, 2015: 4.6, 2016: 4.8, 2017: 4.7, 2018: 4.9, 2019: 5.3, 2020: 11.9 } },
+      { id: "20001", code: "20001", label: "20001 - VALLEDUPAR", name: "Valledupar", center: [10.4631, -73.2532], series: { 2002: 8.4, 2003: 8.0, 2004: 7.5, 2005: 6.9, 2008: 7.7, 2009: 6.8, 2010: 6.1, 2011: 5.0, 2012: 5.1, 2013: 4.9, 2014: 4.4, 2015: 4.3, 2016: 4.6, 2017: 4.5, 2018: 4.8, 2019: 5.1, 2020: 11.2 } },
+      { id: "23001", code: "23001", label: "23001 - MONTERÍA", name: "Montería", center: [8.7479, -75.8814], series: { 2002: 7.9, 2003: 7.5, 2004: 7.1, 2005: 6.6, 2008: 7.4, 2009: 6.5, 2010: 5.8, 2011: 4.7, 2012: 4.9, 2013: 4.6, 2014: 4.2, 2015: 4.1, 2016: 4.4, 2017: 4.3, 2018: 4.6, 2019: 4.9, 2020: 10.8 } },
+      { id: "27001", code: "27001", label: "27001 - SAN FRANCISCO DE QUIBDÓ", name: "Quibdó", center: [5.6947, -76.6611], series: { 2002: 12.5, 2003: 12.0, 2004: 11.3, 2005: 10.8, 2008: 11.9, 2009: 10.7, 2010: 9.8, 2011: 8.6, 2012: 8.8, 2013: 8.5, 2014: 7.8, 2015: 7.5, 2016: 8.0, 2017: 7.8, 2018: 8.2, 2019: 8.7, 2020: 16.5 } },
+      { id: "41001", code: "41001", label: "41001 - NEIVA", name: "Neiva", center: [2.9273, -75.2819], series: { 2002: 6.5, 2003: 6.1, 2004: 5.7, 2005: 5.2, 2008: 5.8, 2009: 4.9, 2010: 4.3, 2011: 3.7, 2012: 3.9, 2013: 3.5, 2014: 3.2, 2015: 3.1, 2016: 3.5, 2017: 3.3, 2018: 3.6, 2019: 4.0, 2020: 9.4 } },
+      { id: "44001", code: "44001", label: "44001 - RIOHACHA, DISTRITO ESPECIAL, TURÍSTICO Y CULTURAL", name: "Riohacha", center: [11.5444, -72.9072], series: { 2002: 11.8, 2003: 11.4, 2004: 10.7, 2005: 10.1, 2008: 11.2, 2009: 10.0, 2010: 9.2, 2011: 8.1, 2012: 8.3, 2013: 7.9, 2014: 7.4, 2015: 7.1, 2016: 7.6, 2017: 7.4, 2018: 7.9, 2019: 8.4, 2020: 15.8 } },
+      { id: "47001", code: "47001", label: "47001 - SANTA MARTA, DISTRITO TURÍSTICO, CULTURAL E HISTÓRICO", name: "Santa Marta", center: [11.2408, -74.1990], series: { 2002: 7.6, 2003: 7.2, 2004: 6.8, 2005: 6.1, 2008: 6.9, 2009: 5.8, 2010: 5.1, 2011: 4.4, 2012: 4.3, 2013: 4.0, 2014: 3.6, 2015: 3.5, 2016: 3.8, 2017: 3.7, 2018: 4.0, 2019: 4.4, 2020: 10.9 } },
+      { id: "50001", code: "50001", label: "50001 - VILLAVICENCIO", name: "Villavicencio", center: [4.1420, -73.6266], series: { 2002: 6.2, 2003: 5.9, 2004: 5.5, 2005: 4.8, 2008: 5.6, 2009: 4.6, 2010: 4.0, 2011: 3.2, 2012: 3.4, 2013: 3.2, 2014: 2.9, 2015: 2.8, 2016: 3.1, 2017: 2.9, 2018: 3.2, 2019: 3.5, 2020: 8.8 } },
+      { id: "52001", code: "52001", label: "52001 - PASTO", name: "Pasto", center: [1.2136, -77.2811], series: { 2002: 7.5, 2003: 7.1, 2004: 6.7, 2005: 6.0, 2008: 6.8, 2009: 5.7, 2010: 5.0, 2011: 4.2, 2012: 4.4, 2013: 4.1, 2014: 3.7, 2015: 3.6, 2016: 3.9, 2017: 3.8, 2018: 4.1, 2019: 4.5, 2020: 10.5 } },
+      { id: "54001", code: "54001", label: "54001 - CÚCUTA", name: "Cúcuta", center: [7.8939, -72.5078], series: { 2002: 8.3, 2003: 7.9, 2004: 7.4, 2005: 6.8, 2008: 7.6, 2009: 6.6, 2010: 5.9, 2011: 4.9, 2012: 5.0, 2013: 4.8, 2014: 4.3, 2015: 4.2, 2016: 4.5, 2017: 4.4, 2018: 4.7, 2019: 5.2, 2020: 11.7 } },
+      { id: "63001", code: "63001", label: "63001 - ARMENIA", name: "Armenia", center: [4.5339, -75.6811], series: { 2002: 5.6, 2003: 5.3, 2004: 4.9, 2005: 4.4, 2008: 5.2, 2009: 4.4, 2010: 3.8, 2011: 3.0, 2012: 3.2, 2013: 3.0, 2014: 2.7, 2015: 2.6, 2016: 2.9, 2017: 2.8, 2018: 3.0, 2019: 3.3, 2020: 7.8 } },
+      { id: "66001", code: "66001", label: "66001 - PEREIRA", name: "Pereira", center: [4.8133, -75.6961], series: { 2002: 5.1, 2003: 4.9, 2004: 4.6, 2005: 4.2, 2008: 5.0, 2009: 4.3, 2010: 3.7, 2011: 2.8, 2012: 3.0, 2013: 2.9, 2014: 2.5, 2015: 2.4, 2016: 2.7, 2017: 2.5, 2018: 2.8, 2019: 3.0, 2020: 7.1 } },
+      { id: "68001", code: "68001", label: "68001 - BUCARAMANGA", name: "Bucaramanga", center: [7.1254, -73.1198], series: { 2002: 4.7, 2003: 4.5, 2004: 4.2, 2005: 3.8, 2008: 4.6, 2009: 3.9, 2010: 3.3, 2011: 2.4, 2012: 2.5, 2013: 2.4, 2014: 2.1, 2015: 2.2, 2016: 2.4, 2017: 2.3, 2018: 2.5, 2019: 2.7, 2020: 6.8 } },
+      { id: "70001", code: "70001", label: "70001 - SINCELEJO", name: "Sincelejo", center: [9.3047, -75.3978], series: { 2002: 8.9, 2003: 8.5, 2004: 8.0, 2005: 7.4, 2008: 8.3, 2009: 7.4, 2010: 6.6, 2011: 5.4, 2012: 5.6, 2013: 5.3, 2014: 4.9, 2015: 4.8, 2016: 5.0, 2017: 4.9, 2018: 5.1, 2019: 5.5, 2020: 12.4 } },
+      { id: "73001", code: "73001", label: "73001 - IBAGUÉ", name: "Ibagué", center: [4.4389, -75.2322], series: { 2002: 6.4, 2003: 6.0, 2004: 5.6, 2005: 5.0, 2008: 5.7, 2009: 4.8, 2010: 4.1, 2011: 3.4, 2012: 3.6, 2013: 3.3, 2014: 3.0, 2015: 2.9, 2016: 3.2, 2017: 3.1, 2018: 3.4, 2019: 3.8, 2020: 8.9 } },
+      { id: "76001", code: "76001", label: "76001 - CALI, DISTRITO ESPECIAL, DEPORTIVO, CULTURAL Y DEPORTIVO", name: "Cali", center: [3.4516, -76.5320], series: { 2002: 5.9, 2003: 5.6, 2004: 5.3, 2005: 4.7, 2008: 5.5, 2009: 4.6, 2010: 4.0, 2011: 3.1, 2012: 3.3, 2013: 3.1, 2014: 2.8, 2015: 2.7, 2016: 3.0, 2017: 2.9, 2018: 3.1, 2019: 3.5, 2020: 8.2 } }
     ];
 
     function getColor(val) {
@@ -778,7 +661,7 @@
       const [selectedYear, setSelectedYear] = useState(2002);
       const [geoData, setGeoData] = useState(null);
       const [loading, setLoading] = useState(true);
-      const [statusMsg, setStatusMsg] = useState("Conectando a GitHub...");
+      const [statusMsg, setStatusMsg] = useState("Conectando...");
 
       const mapRef = useRef(null);
       const geoJsonLayerRef = useRef(null);
@@ -787,24 +670,54 @@
         return cities.find(c => c.id === selectedId) || cities[0];
       }, [cities, selectedId]);
 
-      // 1. Descarga del GeoJSON desde GitHub
+      // Observador de redimensionamiento
+      useEffect(() => {
+        const mapEl = document.getElementById("leaflet-map");
+        if (!mapEl) return;
+
+        const ro = new ResizeObserver(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        });
+
+        ro.observe(mapEl);
+        return () => ro.disconnect();
+      }, []);
+
+      // Descarga remota del GeoJSON desde GitHub
       useEffect(() => {
         async function fetchGitHubGeoJSON() {
           let data = null;
 
-          try {
-            const res = await fetch(GITHUB_RAW_URL, { mode: 'cors' });
-            if (res.ok) data = await res.json();
-          } catch (err) {
-            console.warn("Fallo directo en raw.githubusercontent.com, probando CDN jsDelivr...");
+          for (const url of PRIMARY_RAW_URLS) {
+            try {
+              const res = await fetch(url, { mode: 'cors' });
+              if (res.ok) {
+                const json = await res.json();
+                if (json && (json.type === 'FeatureCollection' || json.features)) {
+                  data = json;
+                  break;
+                }
+              }
+            } catch (err) {}
           }
 
           if (!data || !data.features) {
             try {
-              const resCdn = await fetch(JSDELIVR_CDN_URL);
-              if (resCdn.ok) data = await resCdn.json();
-            } catch (errCdn) {
-              console.warn("Fallo en jsDelivr:", errCdn);
+              const apiRes = await fetch(GITHUB_REPO_API);
+              if (apiRes.ok) {
+                const files = await apiRes.json();
+                const geojsonFile = Array.isArray(files) ? files.find(f => f.name && f.name.toLowerCase().endsWith('.geojson')) : null;
+                if (geojsonFile && geojsonFile.download_url) {
+                  const dlRes = await fetch(geojsonFile.download_url);
+                  if (dlRes.ok) {
+                    data = await dlRes.json();
+                  }
+                }
+              }
+            } catch (apiErr) {
+              console.warn("Auto-detección omitida:", apiErr);
             }
           }
 
@@ -816,9 +729,8 @@
             if (polygonFeatures.length > 0) {
               data.features = polygonFeatures;
               setGeoData(data);
-              setStatusMsg("23 Ciudades GeoJSON Conectado");
+              setStatusMsg("ODS_111G Conectado");
 
-              // Vincular cada una de las 23 ciudades con su polígono oficial
               const enriched = CITIES_23.map(c => {
                 const match = polygonFeatures.find(f => {
                   const s = JSON.stringify(f.properties || {}).toLowerCase();
@@ -839,7 +751,7 @@
               setCities(enriched);
             }
           } else {
-            setStatusMsg("23 Ciudades activas (Modo local)");
+            setStatusMsg("23 Ciudades (Modo local)");
           }
           setLoading(false);
         }
@@ -847,11 +759,12 @@
         fetchGitHubGeoJSON();
       }, []);
 
-      // 2. Inicialización del Mapa
+      // Inicialización del Mapa con scrollWheelZoom: false y soporte para Ctrl+Rueda
       useEffect(() => {
         if (!mapRef.current) {
           const map = L.map("leaflet-map", {
             zoomControl: true,
+            scrollWheelZoom: false, // Permite que la rueda del ratón desplace la página web
             renderer: L.svg({ padding: 0.5 })
           }).setView([4.6097, -74.0817], 10);
 
@@ -860,11 +773,26 @@
             attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, TomTom, USGS, FAO, NPS, NRCAN'
           }).addTo(map);
 
+          // Permite zoom interactivo con la rueda manteniendo presionada la tecla Ctrl / Cmd
+          const handleKeyDown = (e) => {
+            if (e.ctrlKey || e.metaKey) {
+              map.scrollWheelZoom.enable();
+            }
+          };
+          const handleKeyUp = (e) => {
+            if (!e.ctrlKey && !e.metaKey) {
+              map.scrollWheelZoom.disable();
+            }
+          };
+
+          window.addEventListener('keydown', handleKeyDown);
+          window.addEventListener('keyup', handleKeyUp);
+
           mapRef.current = map;
         }
       }, []);
 
-      // 3. Selección y acercamiento fluido
+      // Selección y acercamiento fluido
       const handleSelectEntity = (id) => {
         setSelectedId(id);
         const map = mapRef.current;
@@ -879,17 +807,17 @@
           });
 
           if (targetLayer && targetLayer.getBounds) {
-            map.flyToBounds(targetLayer.getBounds(), { padding: [40, 40], maxZoom: 14, duration: 1 });
+            map.flyToBounds(targetLayer.getBounds(), { padding: [30, 30], maxZoom: 14, duration: 0.8 });
             return;
           }
         }
 
         if (target && target.center) {
-          map.flyTo(target.center, 12, { duration: 1 });
+          map.flyTo(target.center, 12, { duration: 0.8 });
         }
       };
 
-      // 4. Renderizado estricto del GeoJSON con smoothFactor: 0
+      // Renderizado de geometrías puras (smoothFactor: 0 y noClip: true)
       useEffect(() => {
         const map = mapRef.current;
         if (!map || !geoData) return;
@@ -931,15 +859,15 @@
 
             const name = getFeatureName(feature, cities);
             const valNum = getFeatureValue(feature, selectedYear, cities);
-            const formattedVal = `${valNum.toFixed(1)}%`;
+            const formattedVal = `${valNum.toFixed(1).replace('.', ',')}%`;
 
             const tooltipHTML = `
-              <div style="font-family: inherit; font-size: 11px; line-height: 1.4; padding: 2px;">
+              <div style="font-family: inherit; font-size: 14px; line-height: 1.4; padding: 4px;">
                 <div style="font-weight: 700; color: #d31e28; margin-bottom: 2px;">ODS 1.1.1.G</div>
-                <div style="font-weight: 600; color: #111; font-size: 11.5px;">${name}</div>
+                <div style="font-weight: 600; color: #111; font-size: 15px;">${name}</div>
                 <div style="color: #444; margin-top: 4px;">
                   Pobreza extrema (${selectedYear}): 
-                  <b style="color: #6a3c18; font-size: 12px; margin-left: 3px;">${formattedVal}</b>
+                  <b style="color: #6a3c18; font-size: 15px; margin-left: 3px;">${formattedVal}</b>
                 </div>
               </div>
             `;
@@ -964,7 +892,7 @@
                   setSelectedId(matched.id);
                 }
                 if (l.getBounds) {
-                  map.fitToBounds(l.getBounds(), { padding: [40, 40], maxZoom: 14, duration: 0.8 });
+                  map.fitToBounds(l.getBounds(), { padding: [30, 30], maxZoom: 14, duration: 0.8 });
                 }
               },
               mouseover: (e) => {
@@ -987,12 +915,11 @@
             if (l.feature === activeEntity.feature) activeLayer = l;
           });
           if (activeLayer && activeLayer.getBounds) {
-            map.flyToBounds(activeLayer.getBounds(), { padding: [40, 40], maxZoom: 14, duration: 0.8 });
+            map.flyToBounds(activeLayer.getBounds(), { padding: [30, 30], maxZoom: 14, duration: 0.8 });
           }
         }
       }, [geoData, selectedYear, activeEntity, cities]);
 
-      // KPIs y Métricas
       const metrics = useMemo(() => {
         const vals = Object.values(activeEntity.series).filter(v => typeof v === 'number');
         const current = activeEntity.series[selectedYear] ?? 0;
@@ -1003,12 +930,14 @@
       }, [activeEntity, selectedYear]);
 
       const maxChartVal = useMemo(() => {
-        const vals = Object.values(activeEntity.series);
-        return Math.max(10, ...vals);
+        const vals = Object.values(activeEntity.series).filter(v => typeof v === 'number');
+        const maxData = Math.max(...vals, 10);
+        return maxData > 10 ? Math.ceil(maxData / 5) * 5 : 10;
       }, [activeEntity]);
 
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%' }}>
+          {/* Encabezado Principal */}
           <header className="top-header">
             <span>Porcentaje de la población que vive por debajo del umbral internacional de pobreza extrema 2002 - 2020 (ODS 1.1.1G)</span>
             <div className="header-actions">
@@ -1019,24 +948,11 @@
           <div className="dashboard-container">
             {/* Panel Lateral Izquierdo */}
             <aside className="sidebar">
-              <div className="metrics-container">
-                <div className="metric-card">
-                  <span className="metric-label">Tasa Año {selectedYear}</span>
-                  <span className="metric-value">{metrics.current}%</span>
-                  <span className="metric-sub">{activeEntity.name}</span>
-                </div>
-                <div className="metric-card">
-                  <span className="metric-label">Promedio Hist.</span>
-                  <span className="metric-value" style={{ color: '#6a3c18' }}>{metrics.avg}%</span>
-                  <span className="metric-sub">Mín: {metrics.min}% | Máx: {metrics.max}%</span>
-                </div>
-              </div>
-
-              {/* Selector interactivo con scroll del ratón */}
+              {/* Cuadro Superior Izquierdo: Selector de Departamentos (480px) */}
               <div className="selector-card">
                 <div className="selector-header">
                   <span>Seleccione el departamento</span>
-                  <span style={{ fontSize: '11px', opacity: 0.9 }}>({cities.length})</span>
+                  <span style={{ fontSize: '12.5px', opacity: 0.9 }}>({cities.length})</span>
                 </div>
                 <ul className="dept-list">
                   {cities.map((item) => (
@@ -1051,32 +967,59 @@
                 </ul>
               </div>
 
-              {/* Leyenda */}
-              <div className="legend-card">
-                <div className="legend-title">Leyenda (% Pobreza {selectedYear})</div>
-                <div className="legend-scale">
-                  <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#581845' }}></div> &gt; 12.0%</div>
-                  <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#900C3F' }}></div> 9.0% - 12.0%</div>
-                  <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#C70039' }}></div> 6.0% - 9.0%</div>
-                  <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#E36138' }}></div> 4.0% - 6.0%</div>
-                  <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#F39C12' }}></div> 2.0% - 4.0%</div>
-                  <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#F7DC6F' }}></div> ≤ 2.0%</div>
+              {/* Cuadro Inferior Izquierdo: LEYENDA (330px) */}
+              <div className="legend-panel">
+                <div className="panel-header">
+                  <span>Leyenda</span>
+                  <span style={{ fontSize: '12.5px', color: '#666', fontWeight: 'normal' }}>
+                    ODS 1.1.1.G ({selectedYear})
+                  </span>
+                </div>
+
+                <div className="legend-body">
+                  {/* Contadores y Métricas */}
+                  <div className="metrics-container">
+                    <div className="metric-card">
+                      <span className="metric-label">Tasa Año {selectedYear}</span>
+                      <span className="metric-value">{metrics.current}%</span>
+                      <span className="metric-sub">{activeEntity.name}</span>
+                    </div>
+                    <div className="metric-card">
+                      <span className="metric-label">Promedio Hist.</span>
+                      <span className="metric-value" style={{ color: '#6a3c18' }}>{metrics.avg}%</span>
+                      <span className="metric-sub">Mín: {metrics.min}% | Máx: {metrics.max}%</span>
+                    </div>
+                  </div>
+
+                  {/* Rangos de la Escala Coroplética */}
+                  <div className="legend-scale-wrapper">
+                    <div className="legend-subtitle">% Población en pobreza extrema:</div>
+                    <div className="legend-scale">
+                      <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#581845' }}></div> &gt; 12.0%</div>
+                      <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#900C3F' }}></div> 9.0% - 12.0%</div>
+                      <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#C70039' }}></div> 6.0% - 9.0%</div>
+                      <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#E36138' }}></div> 4.0% - 6.0%</div>
+                      <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#F39C12' }}></div> 2.0% - 4.0%</div>
+                      <div className="legend-scale-item"><div className="legend-color-box" style={{ background: '#F7DC6F' }}></div> ≤ 2.0%</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </aside>
 
-            {/* Panel Principal */}
+            {/* Panel Principal Derecho */}
             <main className="main-content">
+              {/* Cuadro Superior Derecho: Sección del Mapa (480px) */}
               <section className="map-panel">
                 {loading && (
                   <div className="loading-overlay">
-                    <span>Cargando GeoJSON de las 23 ciudades...</span>
+                    <span>Cargando GeoJSON desde ODS_111G...</span>
                   </div>
                 )}
 
                 <div className="panel-header">
                   <span>Población que vive por debajo del umbral internacional de pobreza extrema {selectedYear}</span>
-                  <span style={{ fontWeight: 'normal', fontSize: '11px', color: '#555' }}>
+                  <span style={{ fontWeight: 'normal', fontSize: '13.5px', color: '#555' }}>
                     ODS 1.1.1.G: <b>{activeEntity.name}</b>
                   </span>
                 </div>
@@ -1085,6 +1028,7 @@
                   <div id="leaflet-map"></div>
                 </div>
 
+                {/* Línea de tiempo inferior */}
                 <div className="year-timeline">
                   {YEARS.map(yr => (
                     <button
@@ -1098,51 +1042,63 @@
                 </div>
               </section>
 
+              {/* Cuadro Inferior Derecho: Diagrama de Barras (330px) */}
               <section className="chart-panel">
                 <div className="panel-header">
                   <span>Población que vive por debajo del umbral internacional de pobreza extrema</span>
-                  <span style={{ fontSize: '11px', color: '#666' }}>
-                    Valores en (%) para <b>{activeEntity.label}</b>
+                  <span style={{ fontSize: '13.5px', color: '#666' }}>
+                    Valores en (%) para <b>{activeEntity.name}</b>
                   </span>
                 </div>
 
                 <div className="chart-body">
                   <div className="chart-canvas-area">
+                    {/* Líneas horizontales de referencia (0, 5, 10) */}
                     <div className="grid-line" style={{ bottom: '0%' }}>
                       <span className="y-axis-label">0</span>
                     </div>
                     <div className="grid-line" style={{ bottom: `${(5 / maxChartVal) * 100}%` }}>
-                      <span className="y-axis-label">5</span>
+                      <span className="y-axis-label">{maxChartVal === 10 ? '5' : (maxChartVal / 2).toFixed(0)}</span>
                     </div>
-                    <div className="grid-line" style={{ bottom: `${(10 / maxChartVal) * 100}%` }}>
-                      <span className="y-axis-label">10</span>
+                    <div className="grid-line" style={{ bottom: '100%' }}>
+                      <span className="y-axis-label">{maxChartVal}</span>
                     </div>
                     <span className="y-unit">(%)</span>
 
-                    {YEARS.map(yr => {
-                      const val = activeEntity.series[yr] ?? 0;
-                      const heightPercent = (val / maxChartVal) * 100;
+                    {/* Barras del histograma */}
+                    <div className="bars-container">
+                      {YEARS.map(yr => {
+                        const val = activeEntity.series[yr] ?? 0;
+                        const heightPercent = Math.min(100, Math.max(2, (val / maxChartVal) * 100));
+                        const isSelected = selectedYear === yr;
+                        const displayVal = (val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)).replace('.', ',');
 
-                      return (
-                        <div
-                          key={yr}
-                          className={`bar-col ${selectedYear === yr ? "selected" : ""}`}
-                          onClick={() => setSelectedYear(yr)}
-                          title={`${yr}: ${val}%`}
-                        >
-                          <span className="bar-value">{val}</span>
+                        return (
                           <div
-                            className="bar"
-                            style={{ height: `${heightPercent}%` }}
-                          />
-                        </div>
-                      );
-                    })}
+                            key={yr}
+                            className={`bar-col ${isSelected ? "selected" : ""}`}
+                            onClick={() => setSelectedYear(yr)}
+                            title={`${yr}: ${val}%`}
+                          >
+                            <span className="bar-value">{displayVal}</span>
+                            <div
+                              className="bar"
+                              style={{ height: `${heightPercent}%` }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '1.1%' }}>
+                  {/* Fila del Eje X con los años */}
+                  <div className="x-axis-row">
                     {YEARS.map(yr => (
-                      <div key={yr} style={{ flex: 1 }} className="bar-year">
+                      <div
+                        key={yr}
+                        className={`bar-year ${selectedYear === yr ? "selected" : ""}`}
+                        onClick={() => setSelectedYear(yr)}
+                      >
                         {yr}
                       </div>
                     ))}
