@@ -551,19 +551,15 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    const PRIMARY_RAW_URLS = [
-      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_1_1_1_G.geojson',
-      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_111G.geojson',
-      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/master/ODS_1_1_1_G.geojson',
-      'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/master/ODS_111G.geojson',
-      'https://cdn.jsdelivr.net/gh/sebastiandd-web/ODS_111G@main/ODS_1_1_1_G.geojson',
-      'https://cdn.jsdelivr.net/gh/sebastiandd-web/ODS_111G@main/ODS_111G.geojson'
-    ];
-
-    const GITHUB_REPO_API = 'https://api.github.com/repos/sebastiandd-web/ODS_111G/contents';
+    // SERVICIO WFS DEL DANE PROPORCIONADO
+    const DANE_WFS_CAPABILITIES_URL = 'https://portalgis.dane.gov.co/mparcgis/services/Hosted/ODS_1_1_1_G_2gj/MapServer/WFSServer?service=wfs&request=getcapabilities';
+    const DANE_WFS_BASE_URL = 'https://portalgis.dane.gov.co/mparcgis/services/Hosted/ODS_1_1_1_G_2gj/MapServer/WFSServer';
+    const DANE_REST_GEOJSON_URL = 'https://portalgis.dane.gov.co/mparcgis/rest/services/Hosted/ODS_1_1_1_G_2gj/MapServer/0/query?where=1=1&outFields=*&f=geojson';
+    const GITHUB_BACKUP_URL = 'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_1_1_1_G.geojson';
 
     const YEARS = [2002, 2003, 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
 
+    // Las 23 Ciudades Oficiales DANE
     const CITIES_23 = [
       { id: "05001", code: "05001", label: "05001 - MEDELLÍN", name: "Medellín", center: [6.2442, -75.5812], series: { 2002: 6.8, 2003: 6.2, 2004: 5.8, 2005: 5.1, 2008: 5.9, 2009: 4.7, 2010: 4.2, 2011: 3.5, 2012: 3.8, 2013: 3.6, 2014: 3.1, 2015: 3.0, 2016: 3.4, 2017: 3.1, 2018: 3.3, 2019: 3.8, 2020: 8.5 } },
       { id: "08001", code: "08001", label: "08001 - BARRANQUILLA, DISTRITO ESPECIAL, INDUSTRIAL Y PORTUARIO", name: "Barranquilla", center: [10.9685, -74.7813], series: { 2002: 7.2, 2003: 6.9, 2004: 6.4, 2005: 5.8, 2008: 6.7, 2009: 5.5, 2010: 4.8, 2011: 4.1, 2012: 4.0, 2013: 3.9, 2014: 3.4, 2015: 3.2, 2016: 3.6, 2017: 3.5, 2018: 3.7, 2019: 4.1, 2020: 10.2 } },
@@ -661,7 +657,7 @@
       const [selectedYear, setSelectedYear] = useState(2002);
       const [geoData, setGeoData] = useState(null);
       const [loading, setLoading] = useState(true);
-      const [statusMsg, setStatusMsg] = useState("Conectando...");
+      const [statusMsg, setStatusMsg] = useState("Consultando WFS DANE...");
 
       const mapRef = useRef(null);
       const geoJsonLayerRef = useRef(null);
@@ -685,42 +681,88 @@
         return () => ro.disconnect();
       }, []);
 
-      // Descarga remota del GeoJSON desde GitHub
+      // 1. DESCARGA Y CONSUMO DEL SERVICIO WFS DANE
       useEffect(() => {
-        async function fetchGitHubGeoJSON() {
+        async function fetchWFSData() {
           let data = null;
+          let layerName = null;
 
-          for (const url of PRIMARY_RAW_URLS) {
-            try {
-              const res = await fetch(url, { mode: 'cors' });
-              if (res.ok) {
-                const json = await res.json();
-                if (json && (json.type === 'FeatureCollection' || json.features)) {
-                  data = json;
-                  break;
-                }
+          // Paso 1: Intentar leer GetCapabilities para extraer dinámicamente el nombre de la capa
+          try {
+            const capRes = await fetch(DANE_WFS_CAPABILITIES_URL);
+            if (capRes.ok) {
+              const xmlText = await capRes.text();
+              const xmlDoc = new DOMParser().parseFromString(xmlText, "text/xml");
+              const ftNode = xmlDoc.querySelector("FeatureType Name, wfs\\:FeatureType wfs\\:Name");
+              if (ftNode && ftNode.textContent) {
+                layerName = ftNode.textContent.trim();
               }
-            } catch (err) {}
+            }
+          } catch (e) {
+            console.warn("GetCapabilities directo omitido (CORS / seguridad):", e);
           }
 
-          if (!data || !data.features) {
-            try {
-              const apiRes = await fetch(GITHUB_REPO_API);
-              if (apiRes.ok) {
-                const files = await apiRes.json();
-                const geojsonFile = Array.isArray(files) ? files.find(f => f.name && f.name.toLowerCase().endsWith('.geojson')) : null;
-                if (geojsonFile && geojsonFile.download_url) {
-                  const dlRes = await fetch(geojsonFile.download_url);
-                  if (dlRes.ok) {
-                    data = await dlRes.json();
+          // Lista de nombres de capas tentativas del WFS
+          const layerCandidates = [
+            layerName,
+            "ODS_1_1_1_G_2gj",
+            "Hosted:ODS_1_1_1_G_2gj",
+            "Hosted_ODS_1_1_1_G_2gj",
+            "0"
+          ].filter(Boolean);
+
+          // Paso 2: Intentar solicitudes WFS GetFeature con salida GEOJSON
+          for (const lName of layerCandidates) {
+            const wfsGetFeatureUrls = [
+              `${DANE_WFS_BASE_URL}?service=WFS&version=2.0.0&request=GetFeature&typeNames=${encodeURIComponent(lName)}&outputFormat=GEOJSON&srsName=EPSG:4326`,
+              `${DANE_WFS_BASE_URL}?service=WFS&version=1.1.0&request=GetFeature&typeName=${encodeURIComponent(lName)}&outputFormat=GEOJSON&srsName=EPSG:4326`,
+              `${DANE_WFS_BASE_URL}?service=WFS&version=2.0.0&request=GetFeature&typeNames=${encodeURIComponent(lName)}&outputFormat=application/json`
+            ];
+
+            for (const url of wfsGetFeatureUrls) {
+              try {
+                const res = await fetch(url, { mode: 'cors' });
+                if (res.ok) {
+                  const json = await res.json();
+                  if (json && (json.type === 'FeatureCollection' || json.features)) {
+                    data = json;
+                    setStatusMsg("WFS DANE Conectado (OGC)");
+                    break;
                   }
                 }
+              } catch (err) {}
+            }
+            if (data) break;
+          }
+
+          // Paso 3: Fallback al endpoint REST GeoJSON del mismo servicio MapServer
+          if (!data || !data.features) {
+            try {
+              const restRes = await fetch(DANE_REST_GEOJSON_URL, { mode: 'cors' });
+              if (restRes.ok) {
+                const json = await restRes.json();
+                if (json && json.features) {
+                  data = json;
+                  setStatusMsg("DANE GeoService Conectado");
+                }
               }
-            } catch (apiErr) {
-              console.warn("Auto-detección omitida:", apiErr);
+            } catch (restErr) {
+              console.warn("Fallback REST no disponible:", restErr);
             }
           }
 
+          // Paso 4: Fallback de respaldo global para garantizar disponibilidad
+          if (!data || !data.features) {
+            try {
+              const bkpRes = await fetch(GITHUB_BACKUP_URL);
+              if (bkpRes.ok) {
+                data = await bkpRes.json();
+                setStatusMsg("GeoJSON Cargado (Respaldo)");
+              }
+            } catch (bkpErr) {}
+          }
+
+          // Procesamiento y vinculación de geometrías vectoriales
           if (data && data.features && data.features.length > 0) {
             const polygonFeatures = data.features.filter(f => 
               f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
@@ -729,7 +771,6 @@
             if (polygonFeatures.length > 0) {
               data.features = polygonFeatures;
               setGeoData(data);
-              setStatusMsg("ODS_111G Conectado");
 
               const enriched = CITIES_23.map(c => {
                 const match = polygonFeatures.find(f => {
@@ -756,15 +797,15 @@
           setLoading(false);
         }
 
-        fetchGitHubGeoJSON();
+        fetchWFSData();
       }, []);
 
-      // Inicialización del Mapa con scrollWheelZoom: false y soporte para Ctrl+Rueda
+      // 2. Inicialización del Mapa
       useEffect(() => {
         if (!mapRef.current) {
           const map = L.map("leaflet-map", {
             zoomControl: true,
-            scrollWheelZoom: false, // Permite que la rueda del ratón desplace la página web
+            scrollWheelZoom: false, // La rueda del mouse mueve la página web hacia abajo
             renderer: L.svg({ padding: 0.5 })
           }).setView([4.6097, -74.0817], 10);
 
@@ -773,16 +814,12 @@
             attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, TomTom, USGS, FAO, NPS, NRCAN'
           }).addTo(map);
 
-          // Permite zoom interactivo con la rueda manteniendo presionada la tecla Ctrl / Cmd
+          // Zoom con rueda manteniendo presionada la tecla Ctrl / Cmd
           const handleKeyDown = (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              map.scrollWheelZoom.enable();
-            }
+            if (e.ctrlKey || e.metaKey) map.scrollWheelZoom.enable();
           };
           const handleKeyUp = (e) => {
-            if (!e.ctrlKey && !e.metaKey) {
-              map.scrollWheelZoom.disable();
-            }
+            if (!e.ctrlKey && !e.metaKey) map.scrollWheelZoom.disable();
           };
 
           window.addEventListener('keydown', handleKeyDown);
@@ -792,7 +829,7 @@
         }
       }, []);
 
-      // Selección y acercamiento fluido
+      // 3. Selección y acercamiento fluido
       const handleSelectEntity = (id) => {
         setSelectedId(id);
         const map = mapRef.current;
@@ -817,7 +854,7 @@
         }
       };
 
-      // Renderizado de geometrías puras (smoothFactor: 0 y noClip: true)
+      // 4. Renderizado del GeoJSON sin simplificar (smoothFactor: 0 y noClip: true)
       useEffect(() => {
         const map = mapRef.current;
         if (!map || !geoData) return;
@@ -1013,7 +1050,7 @@
               <section className="map-panel">
                 {loading && (
                   <div className="loading-overlay">
-                    <span>Cargando GeoJSON desde ODS_111G...</span>
+                    <span>Conectando con el servicio WFS del DANE...</span>
                   </div>
                 )}
 
@@ -1042,7 +1079,7 @@
                 </div>
               </section>
 
-              {/* Cuadro Inferior Derecho: Diagrama de Barras (330px) */}
+              {/* Cuadro Inferior Derecho: Sección del Diagrama de Barras (330px) */}
               <section className="chart-panel">
                 <div className="panel-header">
                   <span>Población que vive por debajo del umbral internacional de pobreza extrema</span>
