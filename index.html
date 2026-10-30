@@ -551,15 +551,14 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    // SERVICIO WFS DEL DANE PROPORCIONADO
-    const DANE_WFS_CAPABILITIES_URL = 'https://portalgis.dane.gov.co/mparcgis/services/Hosted/ODS_1_1_1_G_2gj/MapServer/WFSServer?service=wfs&request=getcapabilities';
-    const DANE_WFS_BASE_URL = 'https://portalgis.dane.gov.co/mparcgis/services/Hosted/ODS_1_1_1_G_2gj/MapServer/WFSServer';
-    const DANE_REST_GEOJSON_URL = 'https://portalgis.dane.gov.co/mparcgis/rest/services/Hosted/ODS_1_1_1_G_2gj/MapServer/0/query?where=1=1&outFields=*&f=geojson';
+    // ENDPOINTS DE LA CAPA OGC ALOJADA EN ARCGIS ONLINE
+    const OGC_BASE_URL = 'https://services1.arcgis.com/I4YYbPSw13ugmbAP/arcgis/rest/services/ODS_1_1_1_Gj2/OGCFeatureServer';
+    const AGOL_FEATURE_SERVER_URL = 'https://services1.arcgis.com/I4YYbPSw13ugmbAP/arcgis/rest/services/ODS_1_1_1_Gj2/FeatureServer/0/query?where=1=1&outFields=*&f=geojson';
     const GITHUB_BACKUP_URL = 'https://raw.githubusercontent.com/sebastiandd-web/ODS_111G/main/ODS_1_1_1_G.geojson';
 
     const YEARS = [2002, 2003, 2004, 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020];
 
-    // Las 23 Ciudades Oficiales DANE
+    // Las 23 Ciudades Oficiales
     const CITIES_23 = [
       { id: "05001", code: "05001", label: "05001 - MEDELLÍN", name: "Medellín", center: [6.2442, -75.5812], series: { 2002: 6.8, 2003: 6.2, 2004: 5.8, 2005: 5.1, 2008: 5.9, 2009: 4.7, 2010: 4.2, 2011: 3.5, 2012: 3.8, 2013: 3.6, 2014: 3.1, 2015: 3.0, 2016: 3.4, 2017: 3.1, 2018: 3.3, 2019: 3.8, 2020: 8.5 } },
       { id: "08001", code: "08001", label: "08001 - BARRANQUILLA, DISTRITO ESPECIAL, INDUSTRIAL Y PORTUARIO", name: "Barranquilla", center: [10.9685, -74.7813], series: { 2002: 7.2, 2003: 6.9, 2004: 6.4, 2005: 5.8, 2008: 6.7, 2009: 5.5, 2010: 4.8, 2011: 4.1, 2012: 4.0, 2013: 3.9, 2014: 3.4, 2015: 3.2, 2016: 3.6, 2017: 3.5, 2018: 3.7, 2019: 4.1, 2020: 10.2 } },
@@ -651,13 +650,41 @@
       return "ODS 1.1.1.G";
     }
 
+    // GESTOR DE DESCARGA CON SOPORTE CORS INTEGRADO (ArcGIS Online soporta CORS nativo)
+    async function fetchWithCorsSupport(targetUrl, isJson = true) {
+      const gateways = [
+        (u) => u, // Directo nativo (ArcGIS Online soporta CORS de fábrica)
+        (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`
+      ];
+
+      for (const makeUrl of gateways) {
+        try {
+          const url = makeUrl(targetUrl);
+          const res = await fetch(url, { mode: 'cors' });
+          if (!res.ok) continue;
+
+          if (isJson) {
+            const data = await res.json();
+            if (data && (data.type === 'FeatureCollection' || data.features)) {
+              return data;
+            }
+          } else {
+            const text = await res.text();
+            if (text && text.length > 50) return text;
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
     function App() {
       const [cities, setCities] = useState(CITIES_23);
       const [selectedId, setSelectedId] = useState("11001");
       const [selectedYear, setSelectedYear] = useState(2002);
       const [geoData, setGeoData] = useState(null);
       const [loading, setLoading] = useState(true);
-      const [statusMsg, setStatusMsg] = useState("Consultando WFS DANE...");
+      const [statusMsg, setStatusMsg] = useState("Conectando OGC ArcGIS Online...");
 
       const mapRef = useRef(null);
       const geoJsonLayerRef = useRef(null);
@@ -666,7 +693,7 @@
         return cities.find(c => c.id === selectedId) || cities[0];
       }, [cities, selectedId]);
 
-      // Observador de redimensionamiento
+      // Observador de redimensionamiento para Leaflet
       useEffect(() => {
         const mapEl = document.getElementById("leaflet-map");
         if (!mapEl) return;
@@ -681,88 +708,59 @@
         return () => ro.disconnect();
       }, []);
 
-      // 1. DESCARGA Y CONSUMO DEL SERVICIO WFS DANE
+      // 1. CONSUMO DE LA CAPA OGC ALOJADA EN ARCGIS ONLINE
       useEffect(() => {
-        async function fetchWFSData() {
+        async function fetchOGCFeatureData() {
           let data = null;
-          let layerName = null;
+          let collectionId = "0";
 
-          // Paso 1: Intentar leer GetCapabilities para extraer dinámicamente el nombre de la capa
+          // Paso A: Descubrir identificadores de colecciones disponibles en el OGCFeatureServer
           try {
-            const capRes = await fetch(DANE_WFS_CAPABILITIES_URL);
-            if (capRes.ok) {
-              const xmlText = await capRes.text();
-              const xmlDoc = new DOMParser().parseFromString(xmlText, "text/xml");
-              const ftNode = xmlDoc.querySelector("FeatureType Name, wfs\\:FeatureType wfs\\:Name");
-              if (ftNode && ftNode.textContent) {
-                layerName = ftNode.textContent.trim();
+            const collectionsRes = await fetch(`${OGC_BASE_URL}/collections?f=json`, { mode: 'cors' });
+            if (collectionsRes.ok) {
+              const meta = await collectionsRes.json();
+              if (meta && meta.collections && meta.collections.length > 0) {
+                collectionId = meta.collections[0].id || "0";
               }
             }
           } catch (e) {
-            console.warn("GetCapabilities directo omitido (CORS / seguridad):", e);
+            console.warn("Lectura de colecciones OGC omitida:", e);
           }
 
-          // Lista de nombres de capas tentativas del WFS
-          const layerCandidates = [
-            layerName,
-            "ODS_1_1_1_G_2gj",
-            "Hosted:ODS_1_1_1_G_2gj",
-            "Hosted_ODS_1_1_1_G_2gj",
-            "0"
-          ].filter(Boolean);
+          // Variantes de URLs para OGC API - Features en ArcGIS Online
+          const ogcEndpoints = [
+            `${OGC_BASE_URL}/collections/${encodeURIComponent(collectionId)}/items?f=geojson&limit=10000`,
+            `${OGC_BASE_URL}/collections/${encodeURIComponent(collectionId)}/items?f=json&limit=10000`,
+            `${OGC_BASE_URL}/collections/0/items?f=geojson&limit=10000`,
+            `${OGC_BASE_URL}/collections/ODS_1_1_1_Gj2/items?f=geojson&limit=10000`
+          ];
 
-          // Paso 2: Intentar solicitudes WFS GetFeature con salida GEOJSON
-          for (const lName of layerCandidates) {
-            const wfsGetFeatureUrls = [
-              `${DANE_WFS_BASE_URL}?service=WFS&version=2.0.0&request=GetFeature&typeNames=${encodeURIComponent(lName)}&outputFormat=GEOJSON&srsName=EPSG:4326`,
-              `${DANE_WFS_BASE_URL}?service=WFS&version=1.1.0&request=GetFeature&typeName=${encodeURIComponent(lName)}&outputFormat=GEOJSON&srsName=EPSG:4326`,
-              `${DANE_WFS_BASE_URL}?service=WFS&version=2.0.0&request=GetFeature&typeNames=${encodeURIComponent(lName)}&outputFormat=application/json`
-            ];
-
-            for (const url of wfsGetFeatureUrls) {
-              try {
-                const res = await fetch(url, { mode: 'cors' });
-                if (res.ok) {
-                  const json = await res.json();
-                  if (json && (json.type === 'FeatureCollection' || json.features)) {
-                    data = json;
-                    setStatusMsg("WFS DANE Conectado (OGC)");
-                    break;
-                  }
-                }
-              } catch (err) {}
-            }
-            if (data) break;
-          }
-
-          // Paso 3: Fallback al endpoint REST GeoJSON del mismo servicio MapServer
-          if (!data || !data.features) {
-            try {
-              const restRes = await fetch(DANE_REST_GEOJSON_URL, { mode: 'cors' });
-              if (restRes.ok) {
-                const json = await restRes.json();
-                if (json && json.features) {
-                  data = json;
-                  setStatusMsg("DANE GeoService Conectado");
-                }
-              }
-            } catch (restErr) {
-              console.warn("Fallback REST no disponible:", restErr);
+          // Paso B: Solicitar entidades OGC en GeoJSON
+          for (const url of ogcEndpoints) {
+            data = await fetchWithCorsSupport(url, true);
+            if (data && data.features && data.features.length > 0) {
+              setStatusMsg("OGC FeatureServer Conectado");
+              break;
             }
           }
 
-          // Paso 4: Fallback de respaldo global para garantizar disponibilidad
+          // Paso C: Fallback homólogo FeatureServer REST del mismo paquete en ArcGIS Online
           if (!data || !data.features) {
-            try {
-              const bkpRes = await fetch(GITHUB_BACKUP_URL);
-              if (bkpRes.ok) {
-                data = await bkpRes.json();
-                setStatusMsg("GeoJSON Cargado (Respaldo)");
-              }
-            } catch (bkpErr) {}
+            data = await fetchWithCorsSupport(AGOL_FEATURE_SERVER_URL, true);
+            if (data && data.features && data.features.length > 0) {
+              setStatusMsg("ArcGIS Online Service Conectado");
+            }
           }
 
-          // Procesamiento y vinculación de geometrías vectoriales
+          // Paso D: Fallback de respaldo global
+          if (!data || !data.features) {
+            data = await fetchWithCorsSupport(GITHUB_BACKUP_URL, true);
+            if (data && data.features) {
+              setStatusMsg("GeoJSON Conectado (Respaldo)");
+            }
+          }
+
+          // Paso E: Procesamiento de geometrías puras y vinculación de series
           if (data && data.features && data.features.length > 0) {
             const polygonFeatures = data.features.filter(f => 
               f.geometry && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
@@ -792,20 +790,20 @@
               setCities(enriched);
             }
           } else {
-            setStatusMsg("23 Ciudades (Modo local)");
+            setStatusMsg("23 Ciudades (Modo Local)");
           }
           setLoading(false);
         }
 
-        fetchWFSData();
+        fetchOGCFeatureData();
       }, []);
 
-      // 2. Inicialización del Mapa
+      // 2. Inicialización del Mapa con Esri Topográfico
       useEffect(() => {
         if (!mapRef.current) {
           const map = L.map("leaflet-map", {
             zoomControl: true,
-            scrollWheelZoom: false, // La rueda del mouse mueve la página web hacia abajo
+            scrollWheelZoom: false, // La rueda del mouse mueve la página web verticalmente
             renderer: L.svg({ padding: 0.5 })
           }).setView([4.6097, -74.0817], 10);
 
@@ -814,7 +812,7 @@
             attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, TomTom, USGS, FAO, NPS, NRCAN'
           }).addTo(map);
 
-          // Zoom con rueda manteniendo presionada la tecla Ctrl / Cmd
+          // Habilitar zoom de rueda manteniendo presionada la tecla Ctrl / Cmd
           const handleKeyDown = (e) => {
             if (e.ctrlKey || e.metaKey) map.scrollWheelZoom.enable();
           };
@@ -854,7 +852,7 @@
         }
       };
 
-      // 4. Renderizado del GeoJSON sin simplificar (smoothFactor: 0 y noClip: true)
+      // 4. Renderizado estricto del GeoJSON sin simplificar (smoothFactor: 0 y noClip: true)
       useEffect(() => {
         const map = mapRef.current;
         if (!map || !geoData) return;
@@ -967,7 +965,7 @@
       }, [activeEntity, selectedYear]);
 
       const maxChartVal = useMemo(() => {
-        const vals = Object.values(activeEntity.series).filter(v => typeof v === 'number');
+        const vals = Object.values(activeEntity.series);
         const maxData = Math.max(...vals, 10);
         return maxData > 10 ? Math.ceil(maxData / 5) * 5 : 10;
       }, [activeEntity]);
@@ -1050,7 +1048,7 @@
               <section className="map-panel">
                 {loading && (
                   <div className="loading-overlay">
-                    <span>Conectando con el servicio WFS del DANE...</span>
+                    <span>Conectando con la capa OGC de ArcGIS Online...</span>
                   </div>
                 )}
 
